@@ -1,0 +1,6 @@
+@TP2_ISI_2024_HostAddress = http://localhost:5105
+
+GET {{TP2_ISI_2024_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
