@@ -3,18 +3,11 @@ using TP2_ISI_2024.Models;
 
 namespace TP2_ISI_2024.Data
 {
-	public class ApplicationDbContext : DbContext
+	public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 	{
-
-		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-	: base(options)
-		{
-		}
 		public DbSet<User> Users { get; set; }
 		public DbSet<Visitor> Visitors { get; set; }
-		//public DbSet<IndividualWarning> IndividualWarnigns { get; set; }
-		//public DbSet<GlobalWarning> GlobalWarnigns { get; set; }
-		//public DbSet<Ticket> Tickets { get; set; }
+		public DbSet<Schedule> Schedules { get; set; }
 
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
