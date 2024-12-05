@@ -59,50 +59,50 @@ namespace TP2_ISI_2024.Controllers
 			return Ok(schedule);
 		}
 
-		//[HttpPost]
-		//[Authorize(Roles = "Admin,User")]
-		//public async Task<IActionResult> CreateSchedule([FromBody] CreateScheduleDTO createScheduleDTO)
-		//{
-		//	var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
-		//	if (userIdClaim == null)
-		//	{
-		//		return Unauthorized();
-		//	}
+		[HttpPost]
+		[Authorize(Roles = "Admin,User")]
+		public async Task<IActionResult> CreateSchedule([FromBody] CreateScheduleDTO createScheduleDTO)
+		{
+			var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
+			if (userIdClaim == null)
+			{
+				return Unauthorized();
+			}
 
-		//	var userId = int.Parse(userIdClaim.Value);
-		//	var existingReservation = _context.Schedules
-		//		.Any(s => s.CommonAreaId == createScheduleDTO.CommonAreaId &&
-		//				  s.Date >= DateTime.UtcNow.AddDays(-2) &&
-		//				  s.Date <= DateTime.UtcNow);
+			var userId = int.Parse(userIdClaim.Value);
+			var existingReservation = _context.Schedules
+				.Any(s => s.RoomId == createScheduleDTO.RoomId &&
+						  s.Date >= DateTime.UtcNow.AddDays(-2) &&
+						  s.Date <= DateTime.UtcNow);
 
-		//	if (existingReservation)
-		//	{
-		//		return BadRequest("Você não pode fazer uma nova reserva nesse local com o espaço de menos de 2 dias.");
-		//	}
+			if (existingReservation)
+			{
+				return BadRequest("Você não pode fazer uma nova reserva nesse quarto com o espaço de menos de 2 dias.");
+			}
 
-		//	var conflictingReservation = _context.Schedules.Any(s =>
-		//		s.CommonAreaId == createScheduleDTO.CommonAreaId &&
-		//		s.Date == createScheduleDTO.Date);
+			var conflictingReservation = _context.Schedules.Any(s =>
+				s.RoomId == createScheduleDTO.RoomId &&
+				s.Date == createScheduleDTO.Date);
 
-		//	if (conflictingReservation)
-		//	{
-		//		return BadRequest("Já existe uma reserva nesse local e nessa data.");
-		//	}
+			if (conflictingReservation)
+			{
+				return BadRequest("Já existe uma reserva nesse quarto e nessa data.");
+			}
 
-		//	var schedule = new Schedule
-		//	{
-		//		Date = createScheduleDTO.Date.ToUniversalTime(),
-		//		UserId = userId,
-		//		CommonAreaId = createScheduleDTO.CommonAreaId,
-		//		Available = true,
-		//		Canceled = false
-		//	};
+			var schedule = new Schedule
+			{
+				Date = createScheduleDTO.Date.ToUniversalTime(),
+				UserId = userId,
+				RoomId = createScheduleDTO.RoomId,
+				Available = true,
+				Canceled = false
+			};
 
-		//	_context.Schedules.Add(schedule);
-		//	await _context.SaveChangesAsync();
+			_context.Schedules.Add(schedule);
+			await _context.SaveChangesAsync();
 
-		//	return Ok(schedule);
-		//}
+			return Ok(schedule);
+		}
 
 		[HttpPut("{id}")]
 		[Authorize(Roles = "Admin")]
@@ -164,7 +164,7 @@ namespace TP2_ISI_2024.Controllers
 			public bool Available { get; set; }
 			public bool Canceled { get; set; }
 			public int UserId { get; set; }
-			public int CommonAreaId { get; set; }
+			public int RoomId { get; set; }
 		}
 		public class CreateScheduleDTO
 		{
@@ -173,7 +173,7 @@ namespace TP2_ISI_2024.Controllers
 			public DateTime Date { get; set; }
 
 			[Required]
-			public int CommonAreaId { get; set; }
+			public int RoomId { get; set; }
 		}
 		public class UpdateScheduleDTO
 		{

@@ -1,27 +1,22 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Security.AccessControl;
 
 namespace TP2_ISI_2024.Models
 {
-	public class Schedule : ModelBase
+	public class Message : ModelBase
 	{
 		public int Id { get; set; }
-
-
 		[Required]
-		public DateTime Date { get; set; }
+		public string Name { get; set; }
 		[Required]
-		public bool Available { get; set; }
-		[Required]
-		public bool Canceled { get; set; }
-
+		[StringLength(500)]
+		public string Description { get; set; }
+		public string? Reply { get; set; }
 		[ForeignKey("UserId")]
 		public int UserId { get; set; }
-		[ForeignKey("RoomId")]
-		public int RoomId { get; set; }
+
 		public User? User { get; set; }
-		public Room? Room { get; set; }
+
 	}
 }
