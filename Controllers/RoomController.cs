@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using TP2_ISI_2024.Data;
@@ -8,18 +9,19 @@ namespace TP2_ISI_2024.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	public class QuartoController : ControllerBase
+	public class RoomController : ControllerBase
 	{
 		private readonly ApplicationDbContext _context;
 
-		public QuartoController(ApplicationDbContext _context)
+		public RoomController(ApplicationDbContext _context)
 		{
 			this._context = _context;
 		}
 
 		// Lista todos os quartos com informações do usuario
 		[HttpGet]
-		public async Task<ActionResult<IEnumerable<Room>>> GetQuarto()
+		[Authorize(Roles = "Admin")]
+		public async Task<ActionResult<IEnumerable<Room>>> GetRoom()
 		{
 			return await _context.Rooms
 				.Include(q => q.user)
@@ -29,7 +31,8 @@ namespace TP2_ISI_2024.Controllers
 
 		// Lista um quarto específico com informações do usuario
 		[HttpGet("{id}")]
-		public async Task<ActionResult<Room>> GetQuarto(int id)
+		[Authorize(Roles = "Admin")]
+		public async Task<ActionResult<Room>> GetRoom(int id)
 		{
 			var quarto = await _context.Rooms
 				.Include(q => q.user)
@@ -45,17 +48,19 @@ namespace TP2_ISI_2024.Controllers
 
 		// Cria um quarto
 		[HttpPost]
-		public async Task<ActionResult<Room>> PostQuarto([FromBody] Room room)
+		[Authorize(Roles = "Admin,Rec")]
+		public async Task<ActionResult<Room>> PostRoom([FromBody] Room room)
 		{
 			_context.Rooms.Add(room);
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(GetQuarto), new { id = room.Id }, room);
+			return CreatedAtAction(nameof(GetRoom), new { id = room.Id }, room);
 		}
 
 		// Atualiza um quarto
 		[HttpPut("{id}")]
-		public async Task<IActionResult> PutQuarto(int id, Room room)
+		[Authorize(Roles = "Admin,Rec")]
+		public async Task<IActionResult> PutRoom(int id, Room room)
 		{
 			if (id != room.Id)
 			{
@@ -85,7 +90,8 @@ namespace TP2_ISI_2024.Controllers
 
 		// Deleta um quarto
 		[HttpDelete("{id}")]
-		public async Task<ActionResult<Room>> DeleteQuarto(int id)
+		[Authorize(Roles = "Admin")]
+		public async Task<ActionResult<Room>> DeleteRoom(int id)
 		{
 			var quarto = await _context.Rooms.FindAsync(id);
 			if (quarto == null)
@@ -111,7 +117,7 @@ namespace TP2_ISI_2024.Controllers
 			try
 			{
 				var quartosQuery = _context.Rooms
-					.Include(q => q.user) // Inclui informações do hotel na busca
+					.Include(q => q.user)
 					.AsQueryable();
 
 				var lowerQuery = query.ToLower();
