@@ -31,36 +31,18 @@ namespace TP2_ISI_2024.Controllers
 		[HttpGet("{id}")]
 		public async Task<ActionResult<Irrigation>> GetIrrigationById(int id)
 		{
-			var rega = await _context.Irrigations.FindAsync(id);
+			var irrigation = await _context.Irrigations.FindAsync(id);
 
-			if (rega == null)
+			if (irrigation == null)
 			{
 				return NotFound();
 			}
 
-			return rega;
+			return irrigation;
 		}
 
-		//[HttpGet("my")]
-		//public async Task<ActionResult<IEnumerable<IndividualWarning>>> GetRegaByToken()
-		//{
-		//	var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
-		//	if (userIdClaim == null)
-		//	{
-		//		return Unauthorized();
-		//	}
-
-		//	var userId = int.Parse(userIdClaim.Value);
-
-		//	var rega = await _context.Irrigations
-		//								.Where(t => t.UserId == userId)
-		//								.ToListAsync();
-
-		//	return Ok(rega);
-		//}
-
 		[HttpPost]
-		public async Task<ActionResult<Irrigation>> PostIrrigation(RegaCreateDto regaDto)
+		public async Task<ActionResult<Irrigation>> PostIrrigation(IrrigationCreateDto irrigationDto)
 		{
 			var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
 			if (userIdClaim == null)
@@ -69,21 +51,21 @@ namespace TP2_ISI_2024.Controllers
 			}
 
 			var userId = int.Parse(userIdClaim.Value);
-			var rega = new Irrigation
+			var irrigation = new Irrigation
 			{
 				InitialDate = DateTime.UtcNow,
-				EndDate = regaDto.EndDate.ToUniversalTime(),
+				EndDate = irrigationDto.EndDate.ToUniversalTime(),
 				UserId = userId,
-				Temperature = regaDto.Temperature,
+				Temperature = irrigationDto.Temperature,
 			};
 
-			_context.Irrigations.Add(rega);
+			_context.Irrigations.Add(irrigation);
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction("GetAllIrrigations", new { id = rega.Id }, rega);
+			return CreatedAtAction("GetAllIrrigations", new { id = irrigation.Id }, irrigation);
 		}
 
-		public class RegaCreateDto
+		public class IrrigationCreateDto
 		{
 			[StringLength(100)]
 			public string? Temperature { get; set; }
