@@ -10,37 +10,37 @@ namespace TP2_ISI_2024.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
-	public class TicketController : ControllerBase
+	public class MessageController : ControllerBase
 	{
 		private readonly ApplicationDbContext _context;
-		public TicketController(ApplicationDbContext context)
+		public MessageController(ApplicationDbContext context)
 		{
 			_context = context;
 		}
 		[HttpGet]
 		[Authorize(Roles = "Admin")]
-		public async Task<ActionResult<IEnumerable<Message>>> GetTickets()
+		public async Task<ActionResult<IEnumerable<Message>>> GetMessages()
 		{
 			return Ok(await _context.Messages.ToListAsync());
 		}
 
 		[HttpGet("{id}")]
 		[Authorize(Roles = "Admin,User")]
-		public async Task<ActionResult<Message>> GetTicket(int id)
+		public async Task<ActionResult<Message>> GetMessages(int id)
 		{
-			var ticket = await _context.Messages.FindAsync(id);
+			var message = await _context.Messages.FindAsync(id);
 
-			if (ticket == null)
+			if (message == null)
 			{
 				return NotFound();
 			}
 
-			return ticket;
+			return message;
 		}
 
 		[HttpGet("my")]
 		[Authorize(Roles = "User")]
-		public async Task<ActionResult<IEnumerable<Message>>> GetUserTickets()
+		public async Task<ActionResult<IEnumerable<Message>>> GetUserMessages()
 		{
 			var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
 			if (userIdClaim == null)
@@ -60,7 +60,7 @@ namespace TP2_ISI_2024.Controllers
 
 		[HttpPost]
 		[Authorize(Roles = "User")]
-		public async Task<ActionResult<Message>> PostTicket(TicketCreateDto ticketDto)
+		public async Task<ActionResult<Message>> PostMessages(MessageCreateDto messageDto)
 		{
 			var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
 			if (userIdClaim == null)
@@ -70,42 +70,42 @@ namespace TP2_ISI_2024.Controllers
 
 			var userId = int.Parse(userIdClaim.Value);
 
-			var ticket = new Message
+			var message = new Message
 			{
-				Name = ticketDto.Name,
-				Description = ticketDto.Description,
+				Name = messageDto.Name,
+				Description = messageDto.Description,
 				UserId = userId
 			};
 
-			_context.Messages.Add(ticket);
+			_context.Messages.Add(message);
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(GetTicket), new { id = ticket.Id }, ticket);
+			return CreatedAtAction(nameof(GetMessages), new { id = message.Id }, message);
 		}
 
 		[HttpPut("{id}")]
 		[Authorize(Roles = "Admin")]
-		public async Task<IActionResult> PutTicket(int id, TicketUpdateDto TicketUpdateDto)
+		public async Task<IActionResult> PutTicket(int id, MessageUpdateDto MessageUpdateDto)
 		{
-			if (!TicketExists(id))
+			if (!MessageExists(id))
 			{
 				return BadRequest();
 			}
 
 			try
 			{
-				var ticket = await _context.Messages.FindAsync(id);
+				var message = await _context.Messages.FindAsync(id);
 
-				ticket.Name = TicketUpdateDto.Name;
-				ticket.Description = TicketUpdateDto.Description;
-				ticket.Reply = TicketUpdateDto.Reply;
-				ticket.UpdatedAt = DateTime.UtcNow;
+				message.Name = MessageUpdateDto.Name;
+				message.Description = MessageUpdateDto.Description;
+				message.Reply = MessageUpdateDto.Reply;
+				message.UpdatedAt = DateTime.UtcNow;
 				await _context.SaveChangesAsync();
-				return Ok(TicketUpdateDto);
+				return Ok(MessageUpdateDto);
 			}
 			catch (DbUpdateConcurrencyException)
 			{
-				if (!TicketExists(id))
+				if (!MessageExists(id))
 				{
 					return NotFound();
 				}
@@ -119,7 +119,7 @@ namespace TP2_ISI_2024.Controllers
 
 		[HttpDelete("{id}")]
 		[Authorize]
-		public async Task<IActionResult> DeleteTicket(int id)
+		public async Task<IActionResult> DeleteMessage(int id)
 		{
 			var ticket = await _context.Messages.FindAsync(id);
 			if (ticket == null)
@@ -130,15 +130,15 @@ namespace TP2_ISI_2024.Controllers
 			_context.Messages.Remove(ticket);
 			await _context.SaveChangesAsync();
 
-			return Ok("Ticket removido com sucesso.");
+			return Ok("Mensagem removida com sucesso.");
 		}
 
-		private bool TicketExists(int id)
+		private bool MessageExists(int id)
 		{
 			return _context.Messages.Any(e => e.Id == id);
 		}
 	}
-	public class TicketCreateDto
+	public class MessageCreateDto
 	{
 		[Required]
 		public string Name { get; set; }
@@ -147,7 +147,7 @@ namespace TP2_ISI_2024.Controllers
 		[StringLength(500)]
 		public string Description { get; set; }
 	}
-	public class TicketUpdateDto
+	public class MessageUpdateDto
 	{
 		[Required]
 		public string Name { get; set; }

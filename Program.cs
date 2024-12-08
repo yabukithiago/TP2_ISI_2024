@@ -1,11 +1,12 @@
 ﻿using TP2_ISI_2024.Data;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
-using System;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using TP2_ISI_2024.Interface;
+using TP2_ISI_2024.Models;
+using SoapCore;
 
 internal class Program
 {
@@ -38,8 +39,8 @@ internal class Program
 			c.SwaggerDoc("v1", new OpenApiInfo
 			{
 				Version = "v1",
-				Title = "Management Room API V1",
-				Description = "Api para gestão de acesso a quartos de hotéis",
+				Title = "Hostify API V1",
+				Description = "Api para gestão de condominios",
 				TermsOfService = new Uri("https://github.com/yabukithiago"),
 				Contact = new OpenApiContact
 				{
@@ -68,17 +69,20 @@ internal class Program
 			{
 				{
 					new OpenApiSecurityScheme
-					{
-						Reference = new OpenApiReference
 						{
-							Type = ReferenceType.SecurityScheme,
-							Id = "Bearer"
-						}
-					},
+							Reference = new OpenApiReference
+								{
+									Type = ReferenceType.SecurityScheme,
+									Id = "Bearer"
+								}
+						},
 					Array.Empty<string>()
 				}
 			});
 		});
+
+		builder.Services.AddSoapCore();
+		builder.Services.AddScoped<IWeatherSoapService, WeatherSoapService>();
 
 		var app = builder.Build();
 
@@ -92,7 +96,17 @@ internal class Program
 		app.UseHttpsRedirection();
 		app.UseAuthentication();
 		app.UseAuthorization();
-		app.MapControllers();
+
+		app.UseEndpoints(endpoints =>
+		{
+			endpoints.MapControllers(); // Para os endpoints REST
+			endpoints.UseSoapEndpoint<IWeatherSoapService>(
+				"/WeatherSoapService.asmx",
+				new SoapEncoderOptions(),
+				SoapSerializer.XmlSerializer
+			); // Configuração do endpoint SOAP
+		});
+
 		app.Run();
 	}
 }
