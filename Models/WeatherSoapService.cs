@@ -19,9 +19,9 @@ namespace TP2_ISI_2024.Models
 			{
 				var weather = GetWeatherDataAsync(latitude, longitude).Result;
 
-				if (weather?.Main?.Humidity < 30)
+				if (weather?.Main?.Humidity < 50)
 				{
-					return $"Irrigação necessária! Umidade: {weather.Main.Humidity}%";
+					return $"Irrigação necessária! Temperatura: {weather.Main.Temp} Umidade: {weather.Main.Humidity}%";
 				}
 
 				return $"Temperatura: {weather?.Main?.Temp}°C, Umidade: {weather?.Main?.Humidity}%";
