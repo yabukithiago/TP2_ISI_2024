@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using TP2_ISI_2024.Interface;
 using TP2_ISI_2024.Models;
 using SoapCore;
+using TP2_ISI_2024.Services;
 
 internal class Program
 {
@@ -82,7 +83,9 @@ internal class Program
 		});
 
 		builder.Services.AddSoapCore();
+
 		builder.Services.AddScoped<IWeatherSoapService, WeatherSoapService>();
+		builder.Services.AddScoped<IMessageService, MessageService>();
 
 		var app = builder.Build();
 
@@ -99,12 +102,20 @@ internal class Program
 
 		app.UseEndpoints(endpoints =>
 		{
-			endpoints.MapControllers(); // Para os endpoints REST
+			// Mapeando os endpoints REST
+			endpoints.MapControllers();
+
+			// Mapeando os endpoints SOAP
 			endpoints.UseSoapEndpoint<IWeatherSoapService>(
 				"/WeatherSoapService.asmx",
 				new SoapEncoderOptions(),
 				SoapSerializer.XmlSerializer
-			); // Configuração do endpoint SOAP
+			);
+			endpoints.UseSoapEndpoint<IMessageService>(
+				"/MessageService.asmx",
+				new SoapEncoderOptions(),
+				SoapSerializer.XmlSerializer
+			);
 		});
 
 		app.Run();

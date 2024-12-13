@@ -9,32 +9,30 @@ namespace TP2_ISI_2024.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	public class RoomController : ControllerBase
+	public class CommonSpaceController : ControllerBase
 	{
 		private readonly ApplicationDbContext _context;
 
-		public RoomController(ApplicationDbContext _context)
+		public CommonSpaceController(ApplicationDbContext _context)
 		{
 			this._context = _context;
 		}
 
-		// Lista todos os quartos com informações do usuario
 		[HttpGet]
-		[Authorize(Roles = "Admin")]
-		public async Task<ActionResult<IEnumerable<Room>>> GetRoom()
+		[Authorize(Roles = "Admin, Rec")]
+		public async Task<ActionResult<IEnumerable<CommonSpace>>> GetCommonSpace()
 		{
-			return await _context.Rooms
+			return await _context.CommonSpace
 				.Include(q => q.user)
 				.Where(q => q.Available)
 				.ToListAsync();
 		}
 
-		// Lista um quarto específico com informações do usuario
 		[HttpGet("{id}")]
-		[Authorize(Roles = "Admin")]
-		public async Task<ActionResult<Room>> GetRoom(int id)
+		[Authorize(Roles = "Admin, Rec")]
+		public async Task<ActionResult<CommonSpace>> GetCommonSpace(int id)
 		{
-			var quarto = await _context.Rooms
+			var quarto = await _context.CommonSpace
 				.Include(q => q.user)
 				.FirstOrDefaultAsync(q => q.Id == id);
 
@@ -46,21 +44,19 @@ namespace TP2_ISI_2024.Controllers
 			return quarto;
 		}
 
-		// Cria um quarto
 		[HttpPost]
-		[Authorize(Roles = "Admin,Rec")]
-		public async Task<ActionResult<Room>> PostRoom([FromBody] Room room)
+		[Authorize(Roles = "Admin")]
+		public async Task<ActionResult<CommonSpace>> PostCommonSpace([FromBody] CommonSpace room)
 		{
-			_context.Rooms.Add(room);
+			_context.CommonSpace.Add(room);
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(GetRoom), new { id = room.Id }, room);
+			return CreatedAtAction(nameof(GetCommonSpace), new { id = room.Id }, room);
 		}
 
-		// Atualiza um quarto
 		[HttpPut("{id}")]
-		[Authorize(Roles = "Admin,Rec")]
-		public async Task<IActionResult> PutRoom(int id, Room room)
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> PutCommonSpace(int id, CommonSpace room)
 		{
 			if (id != room.Id)
 			{
@@ -75,7 +71,7 @@ namespace TP2_ISI_2024.Controllers
 			}
 			catch (DbUpdateConcurrencyException)
 			{
-				if (!_context.Rooms.Any(e => e.Id == id))
+				if (!_context.CommonSpace.Any(e => e.Id == id))
 				{
 					return NotFound();
 				}
@@ -88,24 +84,22 @@ namespace TP2_ISI_2024.Controllers
 			return NoContent();
 		}
 
-		// Deleta um quarto
 		[HttpDelete("{id}")]
 		[Authorize(Roles = "Admin")]
-		public async Task<ActionResult<Room>> DeleteRoom(int id)
+		public async Task<ActionResult<CommonSpace>> DeleteCommonSpace(int id)
 		{
-			var quarto = await _context.Rooms.FindAsync(id);
+			var quarto = await _context.CommonSpace.FindAsync(id);
 			if (quarto == null)
 			{
 				return NotFound();
 			}
 
-			_context.Rooms.Remove(quarto);
+			_context.CommonSpace.Remove(quarto);
 			await _context.SaveChangesAsync();
 
 			return quarto;
 		}
 
-		// Endpoint para buscar quartos
 		[HttpGet("search")]
 		public async Task<IActionResult> Search(
 			[FromQuery] string query = "",
@@ -116,7 +110,7 @@ namespace TP2_ISI_2024.Controllers
 		{
 			try
 			{
-				var quartosQuery = _context.Rooms
+				var quartosQuery = _context.CommonSpace
 					.Include(q => q.user)
 					.AsQueryable();
 
@@ -134,17 +128,6 @@ namespace TP2_ISI_2024.Controllers
 				if (!string.IsNullOrEmpty(lowerType))
 				{
 					quartosQuery = quartosQuery.Where(q => q.Type.ToLower() == lowerType);
-				}
-
-				if (maxPrice.HasValue)
-				{
-					quartosQuery = quartosQuery.Where(q => q.Cost <= maxPrice.Value);
-				}
-
-				if (!string.IsNullOrEmpty(lowerLocation))
-				{
-					quartosQuery = quartosQuery.Where(q =>
-						q.Adress.ToLower().Contains(lowerLocation));
 				}
 
 				var filteredQuartos = await quartosQuery.ToListAsync();

@@ -4,19 +4,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TP2_ISI_2024.Models
 {
-	public class Message : ModelBase
+	public class Message
 	{
 		public int Id { get; set; }
-		[Required]
 		public string Name { get; set; }
-		[Required]
-		[StringLength(500)]
 		public string Description { get; set; }
-		public string? Reply { get; set; }
-		[ForeignKey("UserId")]
+		public string Reply { get; set; }
 		public int UserId { get; set; }
-
-		public User? User { get; set; }
-
+		public DateTime CreatedAt { get; set; }
+		public DateTime UpdatedAt { get; set; }
 	}
 }

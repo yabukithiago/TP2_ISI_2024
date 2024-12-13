@@ -2,7 +2,7 @@
 
 namespace TP2_ISI_2024.Models
 {
-	public class Room : ModelBase
+	public class CommonSpace : ModelBase
 	{
 		[Key]
 		public int Id { get; set; }
@@ -16,11 +16,6 @@ namespace TP2_ISI_2024.Models
 		public string Description { get; set; }
 		[Required]
 		public int Capacitity { get; set; }
-		[Required]
-		public decimal Cost { get; set; }
-
-		[Required]
-		public string Adress { get; set; }
 		public bool Available { get; set; }
 	}
 }

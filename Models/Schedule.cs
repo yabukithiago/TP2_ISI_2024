@@ -22,6 +22,6 @@ namespace TP2_ISI_2024.Models
 		[ForeignKey("RoomId")]
 		public int RoomId { get; set; }
 		public User? User { get; set; }
-		public Room? Room { get; set; }
+		public CommonSpace? Room { get; set; }
 	}
 }
